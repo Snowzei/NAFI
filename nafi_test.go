@@ -225,7 +225,7 @@ func TestConfigParserObjGetErrors(t *testing.T) {
 	})
 
 	t.Run("json unsupported type", func(t *testing.T) {
-		parser := &ConfigParserObj{fileType: "unsupported"}
+		parser := &configParserObj{fileType: "unsupported"}
 		_, err := parser.Get("any")
 		if err == nil {
 			t.Errorf("Expected error for unsupported file type")

@@ -12,12 +12,12 @@ import (
 )
 
 // type for file reading function so it can be mocked
-type FileReaderFunc func(path string) ([]byte, error)
+type fileReaderFunc func(path string) ([]byte, error)
 
-var readFile FileReaderFunc = os.ReadFile
+var readFile fileReaderFunc = os.ReadFile
 
 // Config parser object
-type ConfigParserObj struct {
+type configParserObj struct {
 	data     map[string]interface{}
 	raw      map[string]string
 	fileType string
@@ -25,8 +25,8 @@ type ConfigParserObj struct {
 }
 
 // NewConfigParserFromBytes parses config data from a byte slice, based on the provided file type.
-func newConfigParserFromBytes(fileType string, content []byte) (*ConfigParserObj, error) {
-	parser := &ConfigParserObj{
+func newConfigParserFromBytes(fileType string, content []byte) (*configParserObj, error) {
+	parser := &configParserObj{
 		data:     make(map[string]interface{}),
 		raw:      make(map[string]string),
 		fileType: fileType,
@@ -96,15 +96,15 @@ func getNestedValue(data map[string]interface{}, key string) (interface{}, bool)
 // Supported file types:
 //
 // "conf", "ini", "json", "yaml"
-func ConfigParser(filepath string, fileType string) (ConfigParserObj, error) {
+func ConfigParser(filepath string, fileType string) (configParserObj, error) {
 	content, err := readFile(filepath)
 	if err != nil {
-		return ConfigParserObj{}, err
+		return configParserObj{}, err
 	}
 
 	parser, err := newConfigParserFromBytes(fileType, content)
 	if err != nil {
-		return ConfigParserObj{}, err
+		return configParserObj{}, err
 	}
 	return *parser, nil
 }
@@ -114,7 +114,7 @@ func ConfigParser(filepath string, fileType string) (ConfigParserObj, error) {
 // Example 1 - val, err := configParser.Get("foo")
 //
 // Example 2 - val, err := configParser.Get("foo.bar")
-func (c *ConfigParserObj) Get(key string) (string, error) {
+func (c *configParserObj) Get(key string) (string, error) {
 	// Check filetype of parser
 	switch c.fileType {
 	// Perform action for type conf

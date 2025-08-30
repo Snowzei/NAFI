@@ -30,6 +30,7 @@ key4 = rAR#vW@='4EV
 				"key2": "value2",
 				"key3": "value3",
 				"key4": "rAR#vW@='4EV",
+				"key5": "",
 			},
 		},
 		{
@@ -47,6 +48,7 @@ qux = quux
 				"section1.foo": "bar",
 				"section1.baz": "bat",
 				"section2.qux": "quux",
+				"section1.missing": "",
 			},
 		},
 		{
@@ -63,6 +65,7 @@ qux = quux
 				"key1":   "value1",
 				"key2":   "value2",
 				"intkey": "22",
+				"missing": "",
 			},
 		},
 		{
@@ -79,6 +82,7 @@ qux = quux
 			cases: map[string]string{
 				"section1.foo": "bar",
 				"plain":        "top",
+				"missing":      "",
 			},
 		},
 		{
@@ -94,6 +98,7 @@ plain: topvalue
 				"section1.foo": "bar",
 				"section1.baz": "bat",
 				"plain":        "topvalue",
+				"missing":      "",
 			},
 		},
 	}
@@ -114,9 +119,13 @@ plain: topvalue
 					t.Errorf("Get(%q) = %q; want %q", lookup, val, expected)
 				}
 			}
-			_, err = parser.Get("does_not_exist")
-			if err == nil {
-				t.Errorf("expected error for missing key")
+			// Check that a random missing key returns "" and no error
+			val, err := parser.Get("does_not_exist")
+			if err != nil {
+				t.Errorf("Get(%q) unexpected error: %v", "does_not_exist", err)
+			}
+			if val != "" {
+				t.Errorf("Get(%q) = %q; want empty string", "does_not_exist", val)
 			}
 		})
 	}
@@ -210,17 +219,23 @@ func TestGetNestedValueEdgeCases(t *testing.T) {
 func TestConfigParserObjGetErrors(t *testing.T) {
 	t.Run("conf missing key", func(t *testing.T) {
 		parser, _ := newConfigParserFromBytes("conf", []byte("foo=bar"))
-		_, err := parser.Get("missing")
-		if err == nil {
-			t.Errorf("Expected error for missing key")
+		val, err := parser.Get("missing")
+		if err != nil {
+			t.Errorf("Get(%q) unexpected error: %v", "missing", err)
+		}
+		if val != "" {
+			t.Errorf("Get(%q) = %q; want empty string", "missing", val)
 		}
 	})
 
 	t.Run("ini missing key", func(t *testing.T) {
 		parser, _ := newConfigParserFromBytes("ini", []byte("[s]\nfoo=bar"))
-		_, err := parser.Get("s.missing")
-		if err == nil {
-			t.Errorf("Expected error for missing ini key")
+		val, err := parser.Get("s.missing")
+		if err != nil {
+			t.Errorf("Get(%q) unexpected error: %v", "s.missing", err)
+		}
+		if val != "" {
+			t.Errorf("Get(%q) = %q; want empty string", "s.missing", val)
 		}
 	})
 

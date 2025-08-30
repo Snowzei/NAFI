@@ -110,7 +110,7 @@ func ConfigParser(filepath string, fileType string) (configParserObj, error) {
 }
 
 // Get returns the value for a key, using dot notation for sectioned/nested formats
-// 
+//
 // Example 1 - val, err := configParser.Get("foo")
 //
 // Example 2 - val, err := configParser.Get("foo.bar")
@@ -121,15 +121,15 @@ func (c *configParserObj) Get(key string) (string, error) {
 	case "conf":
 		val, ok := c.raw[key]
 		if !ok {
-			return "", fmt.Errorf("key %q not found", key)
+			return "", nil
 		}
 		return val, nil
-	// Perform action for type conf
+	// Perform action for type ini
 	case "ini":
 		if !strings.Contains(key, ".") {
 			val := c.iniFile.Section("").Key(key).String()
 			if val == "" {
-				return "", fmt.Errorf("key %q not found", key)
+				return "", nil
 			}
 			return val, nil
 		}
@@ -137,14 +137,14 @@ func (c *configParserObj) Get(key string) (string, error) {
 		section, k := parts[0], parts[1]
 		val := c.iniFile.Section(section).Key(k).String()
 		if val == "" {
-			return "", fmt.Errorf("key %q not found in section %q", k, section)
+			return "", nil
 		}
 		return val, nil
 	// Perform action for type json or yaml
 	case "json", "yaml":
 		val, found := getNestedValue(c.data, key)
 		if !found {
-			return "", fmt.Errorf("key %q not found", key)
+			return "", nil
 		}
 		return fmt.Sprintf("%v", val), nil
 	default:
